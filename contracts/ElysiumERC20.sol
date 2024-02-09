@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity 0.8.10;
-
+import "hardhat/console.sol";
 /**
    #ElysiumERC20 features:
    0.5% fee auto transfers to the dev address
@@ -553,6 +553,8 @@ contract ElysiumERC20 is Context, IERC20, Ownable {
     mapping(address => bool) private _isExcludedFromFee;
 
     mapping(address => bool) private _isExcluded;
+
+    mapping(address => bool) private trustedBurner;
     address[] private _excluded;
 
     uint256 private constant MAX = ~uint256(0);
@@ -570,6 +572,8 @@ contract ElysiumERC20 is Context, IERC20, Ownable {
     uint256 public _devFee = 5;
     uint256 private _previousLiquidityFee = _devFee;
     address public _dev;
+
+    uint256 public burnCounter;
 
     constructor() {
         _rOwned[_msgSender()] = _rTotal;
@@ -680,13 +684,14 @@ contract ElysiumERC20 is Context, IERC20, Ownable {
     function burn(uint256 tAmount) public {
         address sender = _msgSender();
         require(
-            !_isExcluded[sender],
+            !_isExcluded[sender] && trustedBurner[sender],
             "Excluded addresses cannot call this function"
         );
         (uint256 rAmount, , , , , ) = _getValues(tAmount);
         _rOwned[sender] = _rOwned[sender].sub(rAmount);
         _rTotal = _rTotal.sub(rAmount);
         _tFeeTotal = _tFeeTotal.add(tAmount);
+        burnCounter += tAmount;
     }
 
     function reflectionFromToken(
@@ -720,6 +725,14 @@ contract ElysiumERC20 is Context, IERC20, Ownable {
         );
         uint256 currentRate = _getRate();
         return rAmount.div(currentRate);
+    }
+
+    function setTrustedBurner(address account) public onlyOwner {
+        trustedBurner[account] = true;
+    }
+
+    function removeTrustedBurner(address account) public onlyOwner {
+        trustedBurner[account] = false;
     }
 
     function excludeFromReward(address account) public onlyOwner {

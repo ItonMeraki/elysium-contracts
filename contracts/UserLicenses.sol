@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity 0.8.10;
 
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {SafeMathUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-interface IElysiumERC20 {
-    function burn(uint256 tAmount) external;
-}
+
+interface IElysiumERC20 { function burn(uint256 tAmount) external; }
 
 /**
  * @title UserLicenses
  */
-contract UserLicenses is Ownable, AccessControl {
-    using SafeMath for uint256;
-    using SafeERC20 for IERC20;
-    IERC20 public token;
+contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgradeable {
+    using SafeMathUpgradeable for uint256;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    IERC20Upgradeable public token;
 
     bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 
@@ -27,7 +27,6 @@ contract UserLicenses is Ownable, AccessControl {
 
     enum VerificationPlan {
         Null,
-        Standart,
         Special,
         Ambassador
     }
@@ -37,19 +36,17 @@ contract UserLicenses is Ownable, AccessControl {
         uint256 tokenAmountRequired;
     }
 
-    event Verified(address user, VerificationScheme scheme);
+    event Verified(address user, VerificationScheme scheme, string domainName );
     event VerificationCanceled(address user, VerificationScheme scheme);
 
-    constructor(address token_) {
+    function initialize(address token_) public initializer {
+        __Context_init_unchained();
+        __Ownable_init_unchained();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        token = IERC20(token_);
-        availableSchemes[0] = VerificationScheme({
-            plan: VerificationPlan.Standart,
-            tokenAmountRequired: 3000 ether
-        });
+        token = IERC20Upgradeable(token_);
         availableSchemes[1] = VerificationScheme({
             plan: VerificationPlan.Special,
-            tokenAmountRequired: 77777 ether
+            tokenAmountRequired: 7000 ether
         });
         availableSchemes[2] = VerificationScheme({
             plan: VerificationPlan.Ambassador,
@@ -57,21 +54,22 @@ contract UserLicenses is Ownable, AccessControl {
         });
     }
 
-    function verifyPlan(VerificationPlan plan) external {
+    function verifyPlan(VerificationPlan plan, string memory domainName) external {
         require(registry[msg.sender] < plan, "Downgrade is not available");
-        uint256 tokenAmountRequired = availableSchemes[uint256(plan) - 1]
+        uint256 tokenAmountRequired = availableSchemes[uint256(plan)]
             .tokenAmountRequired;
         if (
             registry[msg.sender] != VerificationPlan.Null &&
             registry[msg.sender] != plan
         )
             tokenAmountRequired -= availableSchemes[
-                uint256(registry[msg.sender]) - 1
+                uint256(registry[msg.sender])
             ].tokenAmountRequired;
+            
         token.safeTransferFrom(msg.sender, address(this), tokenAmountRequired);
         IElysiumERC20(address(token)).burn(tokenAmountRequired);
         registry[msg.sender] = plan;
-        emit Verified(msg.sender, availableSchemes[uint256(plan) - 1]);
+        emit Verified(msg.sender, availableSchemes[uint256(plan) - 1], domainName);
     }
 
     function cancelUserVerification(address user) external {

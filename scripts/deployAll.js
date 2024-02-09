@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { network } = require("hardhat");
+const { network, upgrades  } = require("hardhat");
 let deployInfo = require(process.env.HHC_PASS ? process.env.HHC_PASS : '../deploy_info.json');
 
 //=========CHANGE_THIS==========
@@ -17,6 +17,9 @@ deployInfo[network.name] = {
 }
 
 async function main() {
+  [owner] = await ethers.getSigners();
+  console.log("DEPLOYER:", owner.address);
+
   console.log("DEPLOYING ELYSIUM SCHEME");
   console.log("------------------------");
   const ElysiumERC20 = await ethers.getContractFactory("ElysiumERC20");
@@ -25,15 +28,17 @@ async function main() {
   deployInfo[network.name].elysiumToken = elysiumToken.address;
   console.log("ElysiumERC20:", elysiumToken.address);
   const UserLicenses = await ethers.getContractFactory("UserLicenses");
-  const userLicenses = await UserLicenses.deploy(elysiumToken.address);
-  await userLicenses.deployed();
-  deployInfo[network.name].userLicenses = userLicenses.address;
-  console.log("UserLicenses:", userLicenses.address);
+  const userLicensesProxy = await upgrades.deployProxy(UserLicenses, [elysiumToken.address]);
+  // const userLicensesProxy = await UserLicenses.deploy(elysiumToken.address);
+  await userLicensesProxy.deployed();
+  deployInfo[network.name].userLicenses = userLicensesProxy.address;
+  console.log("UserLicenses:", userLicensesProxy.address);
   const ReputationLicenses = await ethers.getContractFactory("ReputationLicenses");
-  const reputationLicenses = await ReputationLicenses.deploy(elysiumToken.address, userLicenses.address);
-  await reputationLicenses.deployed();
-  deployInfo[network.name].reputationLicenses = reputationLicenses.address;
-  console.log("ReputationLicenses:", reputationLicenses.address);
+  const reputationLicensesProxy = await upgrades.deployProxy(ReputationLicenses, [elysiumToken.address, userLicensesProxy.address]);
+  // const reputationLicensesProxy = await ReputationLicenses.deploy(elysiumToken.address, userLicensesProxy.address);
+  await reputationLicensesProxy.deployed();
+  deployInfo[network.name].reputationLicenses = reputationLicensesProxy.address;
+  console.log("ReputationLicenses:", reputationLicensesProxy.address);
   const VestingPreExchange = await ethers.getContractFactory("VestingPreExchange");
   const vestingPreExchange = await VestingPreExchange.deploy(elysiumToken.address);
   await vestingPreExchange.deployed();
@@ -46,9 +51,9 @@ async function main() {
   console.log("VestingTeamAndAdvisors:", vestingTeamAndAdvisors.address);
 
   console.log("------------------------");
-  await elysiumToken.excludeFromFee(userLicenses.address);
+  await elysiumToken.excludeFromFee(userLicensesProxy.address);
   console.log("Verifier is excluded from fee");
-  await elysiumToken.excludeFromFee(reputationLicenses.address);
+  await elysiumToken.excludeFromFee(reputationLicensesProxy.address);
   console.log("ReputationLicenses is excluded from fee");
   await elysiumToken.excludeFromFee(vestingPreExchange.address);
   console.log("VestingPreExchange is excluded from fee");
@@ -56,21 +61,25 @@ async function main() {
   console.log("VestingTeamAndAdvisors is excluded from fee");
 
   console.log("------------------------");
-  await elysiumToken.excludeFromReward(userLicenses.address);
+  await elysiumToken.excludeFromReward(userLicensesProxy.address);
   console.log("Verifier is excluded from reward");
-  await elysiumToken.excludeFromReward(reputationLicenses.address);
+  await elysiumToken.excludeFromReward(reputationLicensesProxy.address);
   console.log("ReputationLicenses is excluded from reward");
   await elysiumToken.excludeFromReward(vestingPreExchange.address);
   console.log("VestingPreExchange is excluded from reward");
   await elysiumToken.excludeFromReward(vestingTeamAndAdvisors.address);
   console.log("VestingTeamAndAdvisors is excluded from reward");
+  
+  console.log("------------------------");
+  await elysiumToken.setTrustedBurner(userLicensesProxy.address);
+  console.log("Set trusted burner UserLicenses contract");
 
   console.log("------------------------");
-  await elysiumToken.transfer(reputationLicenses.address, STKAING_LIQUIDITY);
+  await elysiumToken.transfer(reputationLicensesProxy.address, STKAING_LIQUIDITY);
   console.log("Transfer", ethers.utils.formatEther(STKAING_LIQUIDITY), "ELYS to ReputationLicenses contract");
-  await elysiumToken.transfer(reputationLicenses.address, VESTING_PREEXCHANGE_LIQUIDITY);
+  await elysiumToken.transfer(reputationLicensesProxy.address, VESTING_PREEXCHANGE_LIQUIDITY);
   console.log("Transfer", ethers.utils.formatEther(VESTING_PREEXCHANGE_LIQUIDITY), "ELYS to VestingPreExchange contract");
-  await elysiumToken.transfer(reputationLicenses.address, VESTING_TEAM_LIQUIDITY);
+  await elysiumToken.transfer(reputationLicensesProxy.address, VESTING_TEAM_LIQUIDITY);
   console.log("Transfer", ethers.utils.formatEther(VESTING_TEAM_LIQUIDITY), "ELYS to VestingTeamAndAdvisors contract");
   
   fs.writeFileSync(process.env.HHC_PASS ? process.env.HHC_PASS : "./deploy_info.json",

@@ -157,7 +157,7 @@ contract VestingTeamAndAdvisors is Ownable, ReentrancyGuard {
      * @dev Set the address of the beneficiary.
      * @param newBeneficiary The address of the beneficiary to be set.
      */
-    function setBeneficiary(address newBeneficiary) public {
+    function setBeneficiary(address newBeneficiary) public onlyOwner {
         beneficiary = newBeneficiary;
     }
 

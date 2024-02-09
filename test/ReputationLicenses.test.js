@@ -33,14 +33,14 @@ const restoreSnapshot = async (id) => {
   });
 };
 
-async function signPermission(stakingAddress, user, schemeId, locationId, userNonce) {
-  const abi = ["function stakeTokens(uint256, bytes32, uint8, bytes32, bytes32)"]
+async function signPermission(stakingAddress, user, schemeId, locationId, domainName, userNonce) {
+  const abi = ["function stakeTokens(uint256, bytes32, string, uint8, bytes32, bytes32)"]
   const iface = new ethers.utils.Interface(abi)
   const selector = iface.getSighash('stakeTokens');
 
   const resultHash = ethers.utils.solidityKeccak256(
-    ["bytes4", "address", "address", "uint256", "bytes32", "uint256"],
-    [selector, stakingAddress, user, schemeId, locationId, userNonce]
+    ["bytes4", "address", "address", "uint256", "bytes32", "string", "uint256"],
+    [selector, stakingAddress, user, schemeId, locationId, domainName, userNonce]
   );
 
   const signature = await owner.signMessage(ethers.utils.arrayify(resultHash));
@@ -51,18 +51,22 @@ async function signPermission(stakingAddress, user, schemeId, locationId, userNo
 before(async () => {
   [owner, user1, user2, user3, user4, ...addrs] = await ethers.getSigners();
   MONTH = 2592000;
+  domainName = "TestDomainName"
   snapshot = await takeSnapshot();
   const ElysiumERC20 = await ethers.getContractFactory("ElysiumERC20");
   elysiumToken = await ElysiumERC20.deploy();
   await elysiumToken.deployed();
   const UserLicenses = await ethers.getContractFactory("UserLicenses");
-  userLicenses = await UserLicenses.deploy(elysiumToken.address);
+  userLicenses = await upgrades.deployProxy(UserLicenses, [elysiumToken.address]);
   await userLicenses.deployed();
   const ReputationLicenses = await ethers.getContractFactory("ReputationLicenses");
-  reputationLicenses = await ReputationLicenses.deploy(elysiumToken.address, userLicenses.address);
+  reputationLicenses = await upgrades.deployProxy(ReputationLicenses, [elysiumToken.address, userLicenses.address]);
+
+  await reputationLicenses.setPenaltyIncomeVault(addrs[0].address)
   await reputationLicenses.deployed();
 
   await reputationLicenses.setTrustedSigner(owner.address)
+  await elysiumToken.setTrustedBurner(userLicenses.address)
 
   await elysiumToken.excludeFromFee(userLicenses.address)
   await elysiumToken.excludeFromFee(reputationLicenses.address)
@@ -84,8 +88,8 @@ describe("ReputationLicenses", function () {
     const verifyAmount = ethers.utils.parseEther(tokenAmountRequired)
     await elysiumToken.transfer(user1.address, verifyAmount)
     await elysiumToken.connect(user1).approve(userLicenses.address, verifyAmount);
-    await userLicenses.connect(user1).verifyPlan(2)
-    expect(await userLicenses.getUserPlan(user1.address)).equals(2)
+    await userLicenses.connect(user1).verifyPlan(1, domainName)
+    expect(await userLicenses.getUserPlan(user1.address)).equals(1)
 
     const stakingSchemeId = 0;
     const stakingScheme = await reputationLicenses.getAllSchemes();
@@ -95,12 +99,12 @@ describe("ReputationLicenses", function () {
     const expectedBalance = BigInt(stakeAmount) + BigInt(stakeAmount) * BigInt(apr) / BigInt(100)
 
     const userNonce = await reputationLicenses.nonces(user1.address)
-    const { v, r, s } = await signPermission(reputationLicenses.address, user1.address, stakingSchemeId, locationId, userNonce);
+    const { v, r, s } = await signPermission(reputationLicenses.address, user1.address, stakingSchemeId, locationId, domainName, userNonce);
 
     await elysiumToken.transfer(user1.address, stakeAmount);
 
     await elysiumToken.connect(user1).approve(reputationLicenses.address, stakeAmount);
-    await reputationLicenses.connect(user1).stakeTokens(stakingSchemeId, locationId, v, r, s);
+    await reputationLicenses.connect(user1).stakeTokens(stakingSchemeId, locationId, domainName, v, r, s);
 
     await increaseTime(stakeDuration);
     await reputationLicenses.connect(user1).claimRewards(0)
@@ -115,8 +119,8 @@ describe("ReputationLicenses", function () {
     const verifyAmount = ethers.utils.parseEther(tokenAmountRequired)
     await elysiumToken.transfer(user2.address, verifyAmount)
     await elysiumToken.connect(user2).approve(userLicenses.address, verifyAmount);
-    await userLicenses.connect(user2).verifyPlan(3)
-    expect(await userLicenses.getUserPlan(user2.address)).equals(3)
+    await userLicenses.connect(user2).verifyPlan(2, domainName)
+    expect(await userLicenses.getUserPlan(user2.address)).equals(2)
 
     const stakingSchemeId = 1;
     const stakingScheme = await reputationLicenses.getAllSchemes();
@@ -126,12 +130,12 @@ describe("ReputationLicenses", function () {
     const expectedBalance = BigInt(stakeAmount) + BigInt(stakeAmount) * BigInt(apr) / BigInt(100)
 
     const userNonce = await reputationLicenses.nonces(user2.address)
-    const { v, r, s } = await signPermission(reputationLicenses.address, user2.address, stakingSchemeId, locationId, userNonce);
+    const { v, r, s } = await signPermission(reputationLicenses.address, user2.address, stakingSchemeId, locationId, domainName, userNonce);
 
     await elysiumToken.transfer(user2.address, stakeAmount)
 
     await elysiumToken.connect(user2).approve(reputationLicenses.address, stakeAmount);
-    await reputationLicenses.connect(user2).stakeTokens(stakingSchemeId, locationId, v, r, s)
+    await reputationLicenses.connect(user2).stakeTokens(stakingSchemeId, locationId,domainName, v, r, s)
 
     await increaseTime(stakeDuration);
     await reputationLicenses.connect(user2).claimRewards(1)
@@ -153,8 +157,8 @@ describe("ReputationLicenses", function () {
     const verifyAmount = ethers.utils.parseEther(tokenAmountRequired)
     await elysiumToken.transfer(user3.address, verifyAmount)
     await elysiumToken.connect(user3).approve(userLicenses.address, verifyAmount);
-    await userLicenses.connect(user3).verifyPlan(2)
-    expect(await userLicenses.getUserPlan(user3.address)).equals(2)
+    await userLicenses.connect(user3).verifyPlan(1, domainName)
+    expect(await userLicenses.getUserPlan(user3.address)).equals(1)
 
     await reputationLicenses.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MODERATOR_ROLE")), owner.address)
     const stakingSchemeId = 0;
@@ -164,19 +168,19 @@ describe("ReputationLicenses", function () {
     const apr = stakingScheme[stakingSchemeId].apr;
 
     const userNonce = await reputationLicenses.nonces(user3.address)
-    const { v, r, s } = await signPermission(reputationLicenses.address, user3.address, stakingSchemeId, locationId, userNonce);
+    const { v, r, s } = await signPermission(reputationLicenses.address, user3.address, stakingSchemeId, locationId, domainName, userNonce);
 
     await elysiumToken.transfer(user3.address, stakeAmount)
 
     await elysiumToken.connect(user3).approve(reputationLicenses.address, stakeAmount);
-    await reputationLicenses.connect(user3).stakeTokens(stakingSchemeId, locationId, v, r, s)
+    await reputationLicenses.connect(user3).stakeTokens(stakingSchemeId, locationId, domainName, v, r, s)
 
-    await reputationLicenses.cancelUserStake(2, false)
-    const userStake = await reputationLicenses.getStakeById(2)
+    await reputationLicenses.cancelUserStake(1, 50)
+    const userStake = await reputationLicenses.getStakeById(1)
     expect(userStake.canceled).equals(true)
 
     await increaseTime(stakeDuration);
-    await expect(reputationLicenses.connect(user3).claimRewards(2)).to.be.reverted;
+    await expect(reputationLicenses.connect(user3).claimRewards(1)).to.be.reverted;
 
   });
 
@@ -186,56 +190,59 @@ describe("ReputationLicenses", function () {
     const tokenAmount = ethers.utils.parseEther("1000.0");
     const apr = 25;
     await reputationLicenses.addStakingScheme({
+      licenseType: 1,
       access: access,
       duration: duration,
       tokenAmount: tokenAmount,
       apr: apr
     })
     const allSchemes = await reputationLicenses.getAllSchemes();
-    expect(allSchemes[6].access).equals(access);
-    expect(allSchemes[6].duration).equals(duration);
-    expect(allSchemes[6].tokenAmount).equals(tokenAmount);
-    expect(allSchemes[6].apr).equals(apr);
+    expect(allSchemes[7].access).equals(access);
+    expect(allSchemes[7].duration).equals(duration);
+    expect(allSchemes[7].tokenAmount).equals(tokenAmount);
+    expect(allSchemes[7].apr).equals(apr);
   });
 
   it("Edit available scheme", async function () {
-    const schemeId = 6;
-    const access = 2;
+    const schemeId = 7;
+    const licenseType = 1;
+    const access = 1;
     const duration = 5 * MONTH;
     const tokenAmount = ethers.utils.parseEther("2000.0");
     const apr = 35;
     await reputationLicenses.editAvailableStakingScheme(
       schemeId,
+      licenseType,
       access,
       duration,
       tokenAmount,
       apr
     );
     const allSchemes = await reputationLicenses.getAllSchemes();
-    expect(allSchemes[6].duration).equals(duration);
-    expect(allSchemes[6].access).equals(access);
-    expect(allSchemes[6].tokenAmount).equals(tokenAmount);
-    expect(allSchemes[6].apr).equals(apr);
+    expect(allSchemes[7].duration).equals(duration);
+    expect(allSchemes[7].access).equals(access);
+    expect(allSchemes[7].tokenAmount).equals(tokenAmount);
+    expect(allSchemes[7].apr).equals(apr);
   });
 
   it("Delete scheme", async function () {
-    const schemeId = 6;
+    const schemeId = 7;
     await reputationLicenses.removeAvailableScheme(schemeId);
     const allSchemes = await reputationLicenses.getAllSchemes();
-    expect(allSchemes[6]).equals(undefined);
+    expect(allSchemes[7]).equals(undefined);
   });
 
   it("Stake scheme #1 Ambassador (with payout part by part)", async function () {
     const locationId = ethers.utils.randomBytes(32);
-    const scheme = await userLicenses.getVerificationSchemeByIndex(1);
+    const scheme = await userLicenses.getVerificationSchemeByIndex(2);
     const tokenAmountRequired = ethers.utils.formatEther(scheme.tokenAmountRequired);
     const verifyAmount = ethers.utils.parseEther(tokenAmountRequired)
     await elysiumToken.transfer(user4.address, verifyAmount)
     await elysiumToken.connect(user4).approve(userLicenses.address, verifyAmount);
-    await userLicenses.connect(user4).verifyPlan(2)
+    await userLicenses.connect(user4).verifyPlan(2, domainName)
     expect(await userLicenses.getUserPlan(user4.address)).equals(2)
 
-    const stakingSchemeId = 0;
+    const stakingSchemeId = 1;
     const stakingScheme = await reputationLicenses.getAllSchemes();
     const stakeAmount = stakingScheme[stakingSchemeId].tokenAmount;
     const stakeDuration = stakingScheme[stakingSchemeId].duration;
@@ -248,12 +255,12 @@ describe("ReputationLicenses", function () {
     } else { expectedFinalBalance = BigInt(stakeAmount) * (BigInt(100) + BigInt(apr)) / BigInt(100) }
 
     const userNonce = await reputationLicenses.nonces(user4.address)
-    const { v, r, s } = await signPermission(reputationLicenses.address, user4.address, stakingSchemeId, locationId, userNonce);
+    const { v, r, s } = await signPermission(reputationLicenses.address, user4.address, stakingSchemeId, locationId, domainName, userNonce);
 
     await elysiumToken.transfer(user4.address, stakeAmount)
 
     await elysiumToken.connect(user4).approve(reputationLicenses.address, stakeAmount);
-    await reputationLicenses.connect(user4).stakeTokens(stakingSchemeId, locationId, v, r, s)
+    await reputationLicenses.connect(user4).stakeTokens(stakingSchemeId, locationId,domainName, v, r, s)
 
     await increaseTime(MONTH);
     await reputationLicenses.connect(user4).claimRewards(3)
