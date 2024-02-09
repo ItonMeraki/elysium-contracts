@@ -1,0 +1,9 @@
+{
+  "hardhat": {
+    "elysiumToken": "",
+    "userLicenses": "",
+    "reputationLicenses": "",
+    "vestingPreExchange": "",
+    "vestingTeamAndAdvisors": ""
+  }
+}

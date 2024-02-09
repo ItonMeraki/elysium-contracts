@@ -1,0 +1,7 @@
+{
+    "projectName": "Elysium",
+    "namespace": "Elysium.Contracts",
+    "lang": 0,
+    "autoCodeGen": true,
+    "projectPath": "../"
+}
