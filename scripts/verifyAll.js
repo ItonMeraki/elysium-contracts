@@ -57,7 +57,7 @@ async function main() {
         await hre.run("verify:verify", {
             address: deployInfo[network.name].vestingTeamAndAdvisors,
             constructorArguments: [deployInfo[network.name].elysiumToken],
-            contract: "contracts/VestingTeamAndAdvisors.sol:VestingTeamAndAdvisors",
+            contract: "contracts/VestingTeamAndDevelopment.sol:VestingTeamAndDevelopment",
         });
     } catch (e) {
         console.log(e.message);

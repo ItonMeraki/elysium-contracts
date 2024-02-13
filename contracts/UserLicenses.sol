@@ -39,6 +39,10 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
     event Verified(address user, VerificationScheme scheme, string domainName );
     event VerificationCanceled(address user, VerificationScheme scheme);
 
+    /**
+     * @dev Initializes the contract with the specified token.
+     * @param token_ The address of the ERC20 token contract.
+     */
     function initialize(address token_) public initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
@@ -54,6 +58,11 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
         });
     }
 
+    /**
+     * @dev Verifies the user's plan and burns the required tokens.
+     * @param plan The verification plan.
+     * @param domainName The domain name associated with the verification.
+     */
     function verifyPlan(VerificationPlan plan, string memory domainName) external {
         require(registry[msg.sender] < plan, "Downgrade is not available");
         uint256 tokenAmountRequired = availableSchemes[uint256(plan)]
@@ -72,6 +81,10 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
         emit Verified(msg.sender, availableSchemes[uint256(plan) - 1], domainName);
     }
 
+    /**
+     * @dev Cancels user verification by a moderator.
+     * @param user The address of the user to cancel verification for.
+     */
     function cancelUserVerification(address user) external {
         require(
             hasRole(MODERATOR_ROLE, msg.sender),
@@ -82,10 +95,13 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
             availableSchemes[uint256(registry[user]) - 1]
         );
         registry[user] = VerificationPlan.Null;
-        // token.safeTransfer(user, tokenAmountRequired);
-        //TODO transfer tokens??? where?
     }
 
+    /**
+     * @dev Edits the verification plan with the specified parameters.
+     * @param plan The verification plan to edit.
+     * @param tokenAmountRequired The required token amount for the plan.
+     */
     function editVerificationPlan(
         VerificationPlan plan,
         uint256 tokenAmountRequired
@@ -100,12 +116,21 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
         });
     }
 
+    /**
+     * @dev Gets the verification plan for the specified user.
+     * @param user The address of the user.
+     * @return plan The user's verification plan.
+     */
     function getUserPlan(
         address user
     ) external view returns (VerificationPlan plan) {
         return registry[user];
     }
 
+    /**
+     * @dev Gets all available verification schemes.
+     * @return schemes An array containing all available verification schemes.
+     */
     function getAllVerificationSchemes()
         external
         view
@@ -114,6 +139,11 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
         return availableSchemes;
     }
 
+    /**
+     * @dev Gets the verification scheme at the specified index.
+     * @param index The index of the verification scheme.
+     * @return scheme The verification scheme at the specified index.
+     */
     function getVerificationSchemeByIndex(
         uint256 index
     ) external view returns (VerificationScheme memory scheme) {

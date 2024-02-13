@@ -3,9 +3,9 @@ const { network, upgrades  } = require("hardhat");
 let deployInfo = require(process.env.HHC_PASS ? process.env.HHC_PASS : '../deploy_info.json');
 
 //=========CHANGE_THIS==========
-const STKAING_LIQUIDITY =  ethers.utils.parseEther("4300000000.0");
+const STKAING_LIQUIDITY =  ethers.utils.parseEther("5100000000.0");
 const VESTING_PREEXCHANGE_LIQUIDITY =  ethers.utils.parseEther("1200000000.0");
-const VESTING_TEAM_LIQUIDITY =  ethers.utils.parseEther("750000000.0");
+const VESTING_TEAM_LIQUIDITY =  ethers.utils.parseEther("1750000000.0");
 //==============================
 
 deployInfo[network.name] = {
@@ -44,11 +44,11 @@ async function main() {
   await vestingPreExchange.deployed();
   deployInfo[network.name].vestingPreExchange = vestingPreExchange.address;
   console.log("VestingPreExchange:", vestingPreExchange.address);
-  const VestingTeamAndAdvisors = await ethers.getContractFactory("VestingTeamAndAdvisors");
-  const vestingTeamAndAdvisors = await VestingTeamAndAdvisors.deploy(elysiumToken.address);
+  const VestingTeamAndDevelopment = await ethers.getContractFactory("VestingTeamAndDevelopment");
+  const vestingTeamAndAdvisors = await VestingTeamAndDevelopment.deploy(elysiumToken.address);
   await vestingTeamAndAdvisors.deployed();
   deployInfo[network.name].vestingTeamAndAdvisors = vestingTeamAndAdvisors.address;
-  console.log("VestingTeamAndAdvisors:", vestingTeamAndAdvisors.address);
+  console.log("VestingTeamAndDevelopment:", vestingTeamAndAdvisors.address);
 
   console.log("------------------------");
   await elysiumToken.excludeFromFee(userLicensesProxy.address);
@@ -58,7 +58,7 @@ async function main() {
   await elysiumToken.excludeFromFee(vestingPreExchange.address);
   console.log("VestingPreExchange is excluded from fee");
   await elysiumToken.excludeFromFee(vestingTeamAndAdvisors.address);
-  console.log("VestingTeamAndAdvisors is excluded from fee");
+  console.log("VestingTeamAndDevelopment is excluded from fee");
 
   console.log("------------------------");
   await elysiumToken.excludeFromReward(userLicensesProxy.address);
@@ -68,7 +68,7 @@ async function main() {
   await elysiumToken.excludeFromReward(vestingPreExchange.address);
   console.log("VestingPreExchange is excluded from reward");
   await elysiumToken.excludeFromReward(vestingTeamAndAdvisors.address);
-  console.log("VestingTeamAndAdvisors is excluded from reward");
+  console.log("VestingTeamAndDevelopment is excluded from reward");
   
   console.log("------------------------");
   await elysiumToken.setTrustedBurner(userLicensesProxy.address);
@@ -80,7 +80,7 @@ async function main() {
   await elysiumToken.transfer(reputationLicensesProxy.address, VESTING_PREEXCHANGE_LIQUIDITY);
   console.log("Transfer", ethers.utils.formatEther(VESTING_PREEXCHANGE_LIQUIDITY), "ELYS to VestingPreExchange contract");
   await elysiumToken.transfer(reputationLicensesProxy.address, VESTING_TEAM_LIQUIDITY);
-  console.log("Transfer", ethers.utils.formatEther(VESTING_TEAM_LIQUIDITY), "ELYS to VestingTeamAndAdvisors contract");
+  console.log("Transfer", ethers.utils.formatEther(VESTING_TEAM_LIQUIDITY), "ELYS to VestingTeamAndDevelopment contract");
   
   fs.writeFileSync(process.env.HHC_PASS ? process.env.HHC_PASS : "./deploy_info.json",
   JSON.stringify(deployInfo, undefined, 2));

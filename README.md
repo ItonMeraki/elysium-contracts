@@ -6,7 +6,7 @@
 ### **UserLicenses** - Controls user access to specific features or plans.
 ### **ReputationLicenses** - Manages reputation and staking schemes.
 ### **VestingPreExchange** - Implements a vesting schedule for users who participate in a pre-exchange event.
-### **VestingTeamAndAdvisors** - Implements a vesting schedule for team members and advisors. 
+### **VestingTeamAndDevelopment** - Implements a vesting schedule for team members and advisors. 
 
 ------------------
 ## **IMPORTANT!**
@@ -30,7 +30,7 @@ npx hardhat run scripts/initVestingPreExchange.js --network NETWORK_NAME
 
 ## Initialize Vesting Team and Advisors
 ```
-npx hardhat run scripts/initVestingTeamAndAdvisors.js --network NETWORK_NAME
+npx hardhat run scripts/initVestingTeamAndDevelopment.js --network NETWORK_NAME
 ```
 
 ## Test

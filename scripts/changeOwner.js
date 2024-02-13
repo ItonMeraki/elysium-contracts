@@ -40,13 +40,13 @@ async function main() {
   await vestingPreExchange.transferOwnership(NEW_OWNER);
   console.log(`Ownership of VestingPreExchange transferred to ${NEW_OWNER}`);
 
-  // VestingTeamAndAdvisors contract
-  const VestingTeamAndAdvisors = await ethers.getContractFactory("VestingTeamAndAdvisors");
-  const vestingTeamAndAdvisors = await VestingTeamAndAdvisors.attach(deployInfo[network.name].vestingTeamAndAdvisors);
+  // VestingTeamAndDevelopment contract
+  const VestingTeamAndDevelopment = await ethers.getContractFactory("VestingTeamAndDevelopment");
+  const vestingTeamAndAdvisors = await VestingTeamAndDevelopment.attach(deployInfo[network.name].vestingTeamAndAdvisors);
   // transfer ownership
-  console.log(`VestingTeamAndAdvisors current owner ${await vestingTeamAndAdvisors.owner()}`);
+  console.log(`VestingTeamAndDevelopment current owner ${await vestingTeamAndAdvisors.owner()}`);
   await vestingTeamAndAdvisors.transferOwnership(NEW_OWNER);
-  console.log(`Ownership of VestingTeamAndAdvisors transferred to ${NEW_OWNER}`);
+  console.log(`Ownership of VestingTeamAndDevelopment transferred to ${NEW_OWNER}`);
 }
 
 

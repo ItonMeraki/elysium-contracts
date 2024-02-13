@@ -7,14 +7,14 @@ const BENEFICIARY_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 //==============================
 
 async function main() {
-  console.log("Initialize VestingTeamAndAdvisors");
+  console.log("Initialize VestingTeamAndDevelopment");
   console.log("-----------------------------");
 
-  const VestingTeamAndAdvisors = await ethers.getContractFactory("VestingTeamAndAdvisors");
-  const vestingTeamAndAdvisors = await VestingTeamAndAdvisors.attach(deployInfo[network.name].vestingPreExchange);
+  const VestingTeamAndDevelopment = await ethers.getContractFactory("VestingTeamAndDevelopment");
+  const vestingTeamAndAdvisors = await VestingTeamAndDevelopment.attach(deployInfo[network.name].vestingPreExchange);
  
   let tx =  await vestingTeamAndAdvisors.init(TGE_START_TIME, BENEFICIARY_ADDRESS);
-  console.log("VestingTeamAndAdvisors initialized:", tx.hash );
+  console.log("VestingTeamAndDevelopment initialized:", tx.hash );
 }
 
 

@@ -47,8 +47,8 @@ beforeEach(async () => {
   ElysiumERC20 = await ethers.getContractFactory("ElysiumERC20");
   elysiumToken = await ElysiumERC20.deploy();
   await elysiumToken.deployed();
-  VestingTeamAndAdvisors = await ethers.getContractFactory("VestingTeamAndAdvisors");
-  vesting = await VestingTeamAndAdvisors.deploy(elysiumToken.address);
+  VestingTeamAndDevelopment = await ethers.getContractFactory("VestingTeamAndDevelopment");
+  vesting = await VestingTeamAndDevelopment.deploy(elysiumToken.address);
   await vesting.deployed();
   await elysiumToken.excludeFromFee(vesting.address)
 
@@ -65,14 +65,14 @@ afterEach(async () => {
   await restoreSnapshot(snapshot)
 });
 
-describe("VestingTeamAndAdvisors", function () {
+describe("VestingTeamAndDevelopment", function () {
 
   const cliffTimeAddition1 = YEAR + OFFSET;
-  const cliffTimeAddition2 = YEAR + (5 * MONTH) + OFFSET;
+  const cliffTimeAddition2 = YEAR + (6 * MONTH) + OFFSET;
   const cliffTimeAddition3 = (2 * YEAR) + OFFSET;
-  const cliffTimeAddition4 = (2 * YEAR) + (5 * MONTH) + OFFSET;
+  const cliffTimeAddition4 = (2 * YEAR) + (6 * MONTH) + OFFSET;
   const cliffTimeAddition5 = (3 * YEAR) + OFFSET;
-  const cliffTimeAddition6 = (3 * YEAR) + (5 * MONTH) + OFFSET;
+  const cliffTimeAddition6 = (3 * YEAR) + (6 * MONTH) + OFFSET;
 
   it("Claim cliff #1", async function () {
     await increaseTime(cliffTimeAddition1)

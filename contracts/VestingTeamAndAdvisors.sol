@@ -7,10 +7,10 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
- * @title VestingTeamAndAdvisors
+ * @title VestingTeamAndDevelopment
  * @dev A contract that implements vesting schedule for team and advisors of a project.
  */
-contract VestingTeamAndAdvisors is Ownable, ReentrancyGuard {
+contract VestingTeamAndDevelopment is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -32,7 +32,7 @@ contract VestingTeamAndAdvisors is Ownable, ReentrancyGuard {
     /**
      * @dev The total amount of tokens that will be vested.
      */
-    uint256 public constant totalVestedAmount = 750000000 ether;
+    uint256 public constant totalVestedAmount = 1750000000 ether;
 
     /**
      * @dev The total amount of tokens that are available for claim.
@@ -78,32 +78,32 @@ contract VestingTeamAndAdvisors is Ownable, ReentrancyGuard {
         require(block.timestamp < tgeStartTime, "Invalid start time");
         cliff[0] = CliffList({
             startTime: tgeStartTime + YEAR,
-            amount: 225000000 ether,
+            amount:  525000000 ether,
             processed: false
         }); //30%
         cliff[1] = CliffList({
-            startTime: tgeStartTime + YEAR + (5 * MONTH),
-            amount: 75000000 ether,
+            startTime: tgeStartTime + YEAR + (6 * MONTH),
+            amount: 175000000 ether,
             processed: false
         }); //10%
         cliff[2] = CliffList({
             startTime: tgeStartTime + (2 * YEAR),
-            amount: 75000000 ether,
+            amount: 175000000 ether,
             processed: false
         }); //10%
         cliff[3] = CliffList({
-            startTime: tgeStartTime + (2 * YEAR) + (5 * MONTH),
-            amount: 112500000 ether,
+            startTime: tgeStartTime + (2 * YEAR) + (6 * MONTH),
+            amount: 262500000 ether,
             processed: false
         }); //15%
         cliff[4] = CliffList({
             startTime: tgeStartTime + (3 * YEAR),
-            amount: 112500000 ether,
+            amount: 262500000 ether,
             processed: false
         }); //15%
         cliff[5] = CliffList({
-            startTime: tgeStartTime + (3 * YEAR) + (5 * MONTH),
-            amount: 150000000 ether,
+            startTime: tgeStartTime + (3 * YEAR) + (6 * MONTH),
+            amount: 350000000 ether,
             processed: false
         }); //20%
 

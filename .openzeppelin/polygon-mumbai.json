@@ -94,6 +94,51 @@
       "address": "0x26A72e49D20Ab1169615AFdfF9DAa42c4204d929",
       "txHash": "0xfaeb94b669df1c5b197e4cf2fdb93bacc7cd7eb521cb137e92eecaba15f1c70e",
       "kind": "transparent"
+    },
+    {
+      "address": "0x17bd024E79104E12ECc73D43b60BFAbfeD0c5f60",
+      "txHash": "0x6c67edbcbe56ad9fc2ff76265c30e0a4c25e74be34887ee5194019fd5349ff1a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x3a0A27A56Ff32E2e59e65414D29a489822148855",
+      "txHash": "0x1b62cded2ec13cdfd3626818db585be2113a33c3c4f3f0a4bfca614c8e06f3cf",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x597e9d61C474663e4cE591D4f183DAdaBB9c53DD",
+      "txHash": "0x100b5a5d549412201bc450682e6f7bb50eba992155c4d6d2b0f11cb6ff9859f0",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xD7d1D747049C3Ba89d27eE16c023c57D1C071124",
+      "txHash": "0x725768893e7088c8d70d3983821213c7353a53a24b57840774efd075f3e6619f",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc9cdEE12D22dAC54775D4393113346BA3cfA64D9",
+      "txHash": "0x27287841e2a606448d1cefadf0f3d577372f2622913df66b51ea043ce237b906",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc69204FC8087A2962C66cFcf9EFA2281c7B38267",
+      "txHash": "0x2e98aaa9626b1f297d9bb5201142a3bda75f66a4632d268f0c76f64e34eb795f",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xE7CF606DA191b5F6f7cf0A15F6efC7e9bf792e19",
+      "txHash": "0xada8fdf253c62714f5330699fd682c7b54db1709d24e2b2a9dd525e3d28bc934",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xB3f7383F27fA9476Ba4688d7e2120e4692087085",
+      "txHash": "0xec47970e5b83b1c284abf6751f49b942dc761ce5e495061f60c5d381b3377092",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xd1698cB62A9271e56330816B3b8105Bac0015C48",
+      "txHash": "0xb5da6a2c42a5228d0af719a85fd0ad4a6c7400edaad92eba6e6ec2ba02ffd21e",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -777,6 +822,154 @@
           },
           "t_mapping(t_address,t_bool)": {
             "label": "mapping(address => bool)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "d231445a7f0816005cfb55defa672d96853dd6e47e39d7cea48d7887ad0f33b6": {
+      "address": "0x4C40c4fb3F4212E515B32711EaB0AA9c7486172e",
+      "txHash": "0x90d28f61e5ed7f09d4e09f4c4fe41c2bf73e44f7d8373a6e8007bf6512901b87",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_uint8",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "contract": "AccessControlUpgradeable",
+            "label": "_roles",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)34_storage)",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:61"
+          },
+          {
+            "contract": "AccessControlUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:259"
+          },
+          {
+            "contract": "UserLicenses",
+            "label": "token",
+            "type": "t_contract(IERC20Upgradeable)860",
+            "src": "contracts/UserLicenses.sol:19"
+          },
+          {
+            "contract": "UserLicenses",
+            "label": "registry",
+            "type": "t_mapping(t_address,t_enum(VerificationPlan)5572)",
+            "src": "contracts/UserLicenses.sol:24"
+          },
+          {
+            "contract": "UserLicenses",
+            "label": "availableSchemes",
+            "type": "t_array(t_struct(VerificationScheme)5578_storage)3_storage",
+            "src": "contracts/UserLicenses.sol:26"
+          }
+        ],
+        "types": {
+          "t_contract(IERC20Upgradeable)860": {
+            "label": "contract IERC20Upgradeable"
+          },
+          "t_mapping(t_address,t_enum(VerificationPlan)5572)": {
+            "label": "mapping(address => enum UserLicenses.VerificationPlan)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_enum(VerificationPlan)5572": {
+            "label": "enum UserLicenses.VerificationPlan",
+            "members": [
+              "Null",
+              "Special",
+              "Ambassador"
+            ]
+          },
+          "t_array(t_struct(VerificationScheme)5578_storage)3_storage": {
+            "label": "struct UserLicenses.VerificationScheme[3]"
+          },
+          "t_struct(VerificationScheme)5578_storage": {
+            "label": "struct UserLicenses.VerificationScheme",
+            "members": [
+              {
+                "label": "plan",
+                "type": "t_enum(VerificationPlan)5572"
+              },
+              {
+                "label": "tokenAmountRequired",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)34_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_struct(RoleData)34_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
           },
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]"

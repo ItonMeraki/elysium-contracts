@@ -327,7 +327,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
                     userStake.scheme.tokenAmount) -
                 (payoutSingleAmount * payoutTotalNumber);
         }
-        token.transfer(msg.sender, payoutAmount);
+        token.safeTransfer(msg.sender, payoutAmount);
         emit RewardsClaimed(stakeId, msg.sender, payoutAmount);
     }
 
@@ -350,13 +350,13 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
             penaltyAmount =
                 (stakeRegistry[stakeId].scheme.tokenAmount * penaltyPercent) /
                 100;
-            token.transfer(
+            token.safeTransfer(
                 stakeRegistry[stakeId].user,
                 stakeRegistry[stakeId].scheme.tokenAmount - penaltyAmount
             );
-            token.transfer(penaltyIncomeVault, penaltyAmount);
+            token.safeTransfer(penaltyIncomeVault, penaltyAmount);
         } else {
-            token.transfer(
+            token.safeTransfer(
                 stakeRegistry[stakeId].user,
                 stakeRegistry[stakeId].scheme.tokenAmount
             );
