@@ -17,11 +17,12 @@ contract VestingPreExchange is Ownable, ReentrancyGuard {
     CliffList[6] public cliffList;
 
     uint256 public preExchangeStartTime;
-    uint256 public totalVestedAmount = 1200000000 ether;
+    uint256 public totalVestedAmount = 1200000000 * ELYS;
     uint256 public totalAvailableAmount = totalVestedAmount;
 
     uint256 public constant MONTH = 2592000;
     uint256 public constant YEAR = 31536000;
+    uint256 public constant ELYS = 10 ** 18;
 
     address public trustedWorker;
 
@@ -73,11 +74,11 @@ contract VestingPreExchange is Ownable, ReentrancyGuard {
             timeShift: preExchangeStartTime,
             percent: 2500
         }); //25%
-        cliffList[1] = CliffList({timeShift: (3 * MONTH), percent: 1500}); //15%
-        cliffList[2] = CliffList({timeShift: (6 * MONTH), percent: 1500}); //15%
-        cliffList[3] = CliffList({timeShift: (9 * MONTH), percent: 1500}); //15%
-        cliffList[4] = CliffList({timeShift: (12 * MONTH), percent: 1500}); //15%
-        cliffList[5] = CliffList({timeShift: (15 * MONTH), percent: 1500}); //15%
+        cliffList[1] = CliffList({timeShift: (4 * MONTH), percent: 1500}); //15%
+        cliffList[2] = CliffList({timeShift: (8 * MONTH), percent: 1500}); //15%
+        cliffList[3] = CliffList({timeShift: (12 * MONTH), percent: 1500}); //15%
+        cliffList[4] = CliffList({timeShift: (16 * MONTH), percent: 1500}); //15%
+        cliffList[5] = CliffList({timeShift: (20 * MONTH), percent: 1500}); //15%
     }
 
     /**

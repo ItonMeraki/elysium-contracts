@@ -16,7 +16,10 @@ interface IElysiumERC20 { function burn(uint256 tAmount) external; }
 contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgradeable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
+
     IERC20Upgradeable public token;
+
+    uint256 public constant ELYS = 10 ** 18;
 
     bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 
@@ -50,11 +53,11 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
         token = IERC20Upgradeable(token_);
         availableSchemes[1] = VerificationScheme({
             plan: VerificationPlan.Special,
-            tokenAmountRequired: 7000 ether
+            tokenAmountRequired: 7000 * ELYS
         });
         availableSchemes[2] = VerificationScheme({
             plan: VerificationPlan.Ambassador,
-            tokenAmountRequired: 250000 ether
+            tokenAmountRequired: 250000 * ELYS
         });
     }
 

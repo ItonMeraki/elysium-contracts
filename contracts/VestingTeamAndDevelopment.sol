@@ -32,7 +32,7 @@ contract VestingTeamAndDevelopment is Ownable, ReentrancyGuard {
     /**
      * @dev The total amount of tokens that will be vested.
      */
-    uint256 public constant totalVestedAmount = 1750000000 ether;
+    uint256 public constant totalVestedAmount = 1750000000 * ELYS;
 
     /**
      * @dev The total amount of tokens that are available for claim.
@@ -48,6 +48,11 @@ contract VestingTeamAndDevelopment is Ownable, ReentrancyGuard {
      * @dev The duration of a year in seconds.
      */
     uint256 public constant YEAR = 31536000;
+
+    /**
+     * @dev ELYS decimals.
+     */
+    uint256 public constant ELYS = 10 ** 18;
 
     /**
      * @dev A list of cliffs that defines the vesting schedule.
@@ -78,32 +83,32 @@ contract VestingTeamAndDevelopment is Ownable, ReentrancyGuard {
         require(block.timestamp < tgeStartTime, "Invalid start time");
         cliff[0] = CliffList({
             startTime: tgeStartTime + YEAR,
-            amount:  525000000 ether,
+            amount:  525000000 * ELYS,
             processed: false
         }); //30%
         cliff[1] = CliffList({
             startTime: tgeStartTime + YEAR + (6 * MONTH),
-            amount: 175000000 ether,
+            amount: 175000000 * ELYS,
             processed: false
         }); //10%
         cliff[2] = CliffList({
             startTime: tgeStartTime + (2 * YEAR),
-            amount: 175000000 ether,
+            amount: 175000000 * ELYS,
             processed: false
         }); //10%
         cliff[3] = CliffList({
             startTime: tgeStartTime + (2 * YEAR) + (6 * MONTH),
-            amount: 262500000 ether,
+            amount: 262500000 * ELYS,
             processed: false
         }); //15%
         cliff[4] = CliffList({
             startTime: tgeStartTime + (3 * YEAR),
-            amount: 262500000 ether,
+            amount: 262500000 * ELYS,
             processed: false
         }); //15%
         cliff[5] = CliffList({
             startTime: tgeStartTime + (3 * YEAR) + (6 * MONTH),
-            amount: 350000000 ether,
+            amount: 350000000 * ELYS,
             processed: false
         }); //20%
 

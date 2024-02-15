@@ -36,6 +36,9 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
     IUserLicenses public verifier;
 
     StakingScheme[] public availableSchemes;
+
+    uint256 public constant ELYS = 10 ** 18;
+
     // schemeId => schemeId
     mapping(uint256 => UserStake) public stakeRegistry;
 
@@ -98,7 +101,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
                 licenseType: LicenseType.Verification,
                 access: IUserLicenses.VerificationPlan.Special,
                 duration: 6 * MONTH,
-                tokenAmount: 7000 ether,
+                tokenAmount: 7000 * ELYS,
                 apr: 11 //11%
             })
         );
@@ -107,7 +110,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
                 licenseType: LicenseType.Verification,
                 access: IUserLicenses.VerificationPlan.Ambassador,
                 duration: 6 * MONTH,
-                tokenAmount: 7000 ether,
+                tokenAmount: 7000 * ELYS,
                 apr: 11 //11%
             })
         );
@@ -116,7 +119,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
                 licenseType: LicenseType.Verification,
                 access: IUserLicenses.VerificationPlan.Special,
                 duration: 12 * MONTH,
-                tokenAmount: 13000 ether,
+                tokenAmount: 13000 * ELYS,
                 apr: 19 //19%
             })
         );
@@ -125,7 +128,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
                 licenseType: LicenseType.Verification,
                 access: IUserLicenses.VerificationPlan.Ambassador,
                 duration: 12 * MONTH,
-                tokenAmount: 13000 ether,
+                tokenAmount: 13000 * ELYS,
                 apr: 19 //19%
             })
         );
@@ -134,7 +137,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
                 licenseType: LicenseType.Commercial,
                 access: IUserLicenses.VerificationPlan.Ambassador,
                 duration: 6 * MONTH,
-                tokenAmount: 27000 ether,
+                tokenAmount: 27000 * ELYS,
                 apr: 21 //21%
             })
         );
@@ -143,7 +146,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
                 licenseType: LicenseType.Commercial,
                 access: IUserLicenses.VerificationPlan.Ambassador,
                 duration: 12 * MONTH,
-                tokenAmount: 27000 ether,
+                tokenAmount: 27000 * ELYS,
                 apr: 27 //27%
             })
         );
@@ -152,7 +155,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
                 licenseType: LicenseType.Commercial,
                 access: IUserLicenses.VerificationPlan.Ambassador,
                 duration: 36 * MONTH,
-                tokenAmount: 27000 ether,
+                tokenAmount: 27000 * ELYS,
                 apr: 39 //39%
             })
         );

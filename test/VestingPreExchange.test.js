@@ -74,11 +74,11 @@ const getPercent = async (amount , precent) => {
 
 describe("VestingPreExchange", function () {
   const cliffTimeAddition1 = OFFSET;
-  const cliffTimeAddition2 = (3 * MONTH);
-  const cliffTimeAddition3 = (6 * MONTH);
-  const cliffTimeAddition4 = (9 * MONTH);
-  const cliffTimeAddition5 = (12 * MONTH);
-  const cliffTimeAddition6 = (15 * MONTH);
+  const cliffTimeAddition2 = (4 * MONTH);
+  const cliffTimeAddition3 = (8 * MONTH);
+  const cliffTimeAddition4 = (12 * MONTH);
+  const cliffTimeAddition5 = (16 * MONTH);
+  const cliffTimeAddition6 = (20 * MONTH);
 
   it("Claim cliff #1", async function () {
     const vestedAmount = ethers.utils.parseEther("10000.0");
