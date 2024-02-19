@@ -61,6 +61,8 @@ before(async () => {
   await userLicenses.deployed();
   const ReputationLicenses = await ethers.getContractFactory("ReputationLicenses");
   reputationLicenses = await upgrades.deployProxy(ReputationLicenses, [elysiumToken.address, userLicenses.address]);
+  
+  await elysiumToken.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MODERATOR_ROLE")), userLicenses.address)
 
   await reputationLicenses.setPenaltyIncomeVault(addrs[0].address)
   await reputationLicenses.deployed();

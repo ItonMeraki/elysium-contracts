@@ -8,7 +8,10 @@ import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/acce
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 
-interface IElysiumERC20 { function burn(uint256 tAmount) external; }
+interface IElysiumERC20 { 
+    function burn(uint256 tAmount) external; 
+    function excludeFromFee(address account) external;
+}
 
 /**
  * @title UserLicenses
@@ -81,6 +84,7 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
         token.safeTransferFrom(msg.sender, address(this), tokenAmountRequired);
         IElysiumERC20(address(token)).burn(tokenAmountRequired);
         registry[msg.sender] = plan;
+        IElysiumERC20(address(token)).excludeFromFee(msg.sender);
         emit Verified(msg.sender, availableSchemes[uint256(plan) - 1], domainName);
     }
 

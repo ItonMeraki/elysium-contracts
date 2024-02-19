@@ -10,7 +10,6 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import "hardhat/console.sol";
 
 interface IUserLicenses {
     enum VerificationPlan {

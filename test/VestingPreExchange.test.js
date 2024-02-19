@@ -69,7 +69,7 @@ afterEach(async () => {
 
 const getPercent = async (amount , precent) => {
 
-  return amount * precent/100
+  return amount * precent / 100
   };
 
 describe("VestingPreExchange", function () {

@@ -447,92 +447,23 @@ library Address {
     }
 }
 
-/**
- * @dev Contract module which provides a basic access control mechanism, where
- * there is an account (an owner) that can be granted exclusive access to
- * specific functions.
- *
- * By default, the owner account will be the one that deploys the contract. This
- * can later be changed with {transferOwnership}.
- *
- * This module is used through inheritance. It will make available the modifier
- * `onlyOwner`, which can be applied to your functions to restrict their use to
- * the owner.
- */
-contract Ownable is Context {
-    address private _owner;
-    address private _previousOwner;
-    
-    event OwnershipTransferred(
-        address indexed previousOwner,
-        address indexed newOwner
-    );
 
-    /**
-     * @dev Initializes the contract setting the deployer as the initial owner.
-     */
-    constructor() {
-        address msgSender = _msgSender();
-        _owner = msgSender;
-        emit OwnershipTransferred(address(0), msgSender);
-    }
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view returns (address) {
-        return _owner;
-    }
 
-    /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() {
-        require(_owner == _msgSender(), "Ownable: caller is not the owner");
-        _;
-    }
-
-    /**
-     * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions anymore. Can only be called by the current owner.
-     *
-     * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby removing any functionality that is only available to the owner.
-     */
-    function renounceOwnership() public virtual onlyOwner {
-        emit OwnershipTransferred(_owner, address(0));
-        _owner = address(0);
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
-     */
-    function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(
-            newOwner != address(0),
-            "Ownable: new owner is the zero address"
-        );
-        emit OwnershipTransferred(_owner, newOwner);
-        _owner = newOwner;
-    }
-}
-
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
-contract ElysiumERC20 is Context, IERC20, Ownable, ReentrancyGuard {
+contract ElysiumERC20 is IERC20, AccessControl {
     using SafeMath for uint256;
     using Address for address;
 
     mapping(address => uint256) private _rOwned;
     mapping(address => uint256) private _tOwned;
     mapping(address => mapping(address => uint256)) private _allowances;
-
     mapping(address => bool) private _isExcludedFromFee;
-
     mapping(address => bool) private _isExcluded;
-
     mapping(address => bool) private trustedBurner;
+
+    bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
+
     address[] private _excluded;
 
     uint256 private constant MAX = ~uint256(0);
@@ -554,10 +485,12 @@ contract ElysiumERC20 is Context, IERC20, Ownable, ReentrancyGuard {
     uint256 public burnCounter;
 
     constructor() {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(MODERATOR_ROLE, msg.sender);
         _rOwned[_msgSender()] = _rTotal;
 
         //exclude owner and this contract from fee
-        _isExcludedFromFee[owner()] = true;
+        _isExcludedFromFee[_msgSender()] = true;
         _isExcludedFromFee[address(this)] = true;
 
         emit Transfer(address(0), _msgSender(), _tTotal);
@@ -705,15 +638,15 @@ contract ElysiumERC20 is Context, IERC20, Ownable, ReentrancyGuard {
         return rAmount.div(currentRate);
     }
 
-    function setTrustedBurner(address account) public onlyOwner {
+    function setTrustedBurner(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
         trustedBurner[account] = true;
     }
 
-    function removeTrustedBurner(address account) public onlyOwner {
+    function removeTrustedBurner(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
         trustedBurner[account] = false;
     }
 
-    function excludeFromReward(address account) public onlyOwner {
+    function excludeFromReward(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(!_isExcluded[account], "Account is already excluded");
         if (_rOwned[account] > 0) {
             _tOwned[account] = tokenFromReflection(_rOwned[account]);
@@ -722,7 +655,7 @@ contract ElysiumERC20 is Context, IERC20, Ownable, ReentrancyGuard {
         _excluded.push(account);
     }
 
-    function includeInReward(address account) external onlyOwner {
+    function includeInReward(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_isExcluded[account], "Account is already excluded");
         for (uint256 i = 0; i < _excluded.length; i++) {
             if (_excluded[i] == account) {
@@ -757,19 +690,20 @@ contract ElysiumERC20 is Context, IERC20, Ownable, ReentrancyGuard {
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
-    function excludeFromFee(address account) public onlyOwner {
+    function excludeFromFee(address account) public {
+        require(hasRole(MODERATOR_ROLE, msg.sender), "Caller is not a moderator");
         _isExcludedFromFee[account] = true;
     }
 
-    function includeInFee(address account) public onlyOwner {
+    function includeInFee(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
         _isExcludedFromFee[account] = false;
     }
 
-    function setTaxFeePercent(uint256 taxFee) external onlyOwner {
+    function setTaxFeePercent(uint256 taxFee) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _taxFee = taxFee;
     }
 
-    function setDevFeePercent(uint256 devFee) external onlyOwner {
+    function setDevFeePercent(uint256 devFee) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _devFee = devFee;
     }
 
@@ -984,7 +918,7 @@ contract ElysiumERC20 is Context, IERC20, Ownable, ReentrancyGuard {
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
-    function setDevAddress(address dev) public onlyOwner {
+    function setDevAddress(address dev) public onlyRole(DEFAULT_ADMIN_ROLE) {
         _dev = dev;
     }
 }

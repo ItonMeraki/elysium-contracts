@@ -13,6 +13,8 @@ before(async () => {
   await elysiumToken.excludeFromFee(userLicenses.address)
   await elysiumToken.setTrustedBurner(userLicenses.address)
 
+  await elysiumToken.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MODERATOR_ROLE")), userLicenses.address)
+
   // await elysiumToken.excludeFromReward(userLicenses.address)
 });
 
