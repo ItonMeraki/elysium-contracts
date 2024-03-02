@@ -40,6 +40,11 @@ contract VestingTeamAndDevelopment is Ownable, ReentrancyGuard {
     uint256 public totalAvailableAmount;
 
     /**
+     * @dev Init boolean variable.
+     */
+    bool public initialized;
+
+    /**
      * @dev The duration of a month in seconds.
      */
     uint256 public constant MONTH = 2592000;
@@ -77,6 +82,7 @@ contract VestingTeamAndDevelopment is Ownable, ReentrancyGuard {
      * @param receiver The address of the beneficiary (team/advisors).
      */
     function init(uint256 tgeTime, address receiver) external onlyOwner {
+        require(!initialized, "Initialization has already been done");
         tgeStartTime = tgeTime;
         beneficiary = receiver;
         token.safeTransferFrom(msg.sender, address(this), totalVestedAmount);
