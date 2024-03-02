@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity 0.8.10;
 
-import {SafeMathUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -16,8 +15,7 @@ interface IElysiumERC20 {
 /**
  * @title UserLicenses
  */
-contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgradeable {
-    using SafeMathUpgradeable for uint256;
+contract UserLicenses is Initializable, AccessControlUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IERC20Upgradeable public token;
@@ -51,7 +49,6 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
      */
     function initialize(address token_) public initializer {
         __Context_init_unchained();
-        __Ownable_init_unchained();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         token = IERC20Upgradeable(token_);
         availableSchemes[1] = VerificationScheme({
@@ -85,7 +82,7 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
         IElysiumERC20(address(token)).burn(tokenAmountRequired);
         registry[msg.sender] = plan;
         IElysiumERC20(address(token)).excludeFromFee(msg.sender);
-        emit Verified(msg.sender, availableSchemes[uint256(plan) - 1], domainName);
+        emit Verified(msg.sender, availableSchemes[uint256(plan)], domainName);
     }
 
     /**
@@ -99,7 +96,7 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
         );
         emit VerificationCanceled(
             user,
-            availableSchemes[uint256(registry[user]) - 1]
+            availableSchemes[uint256(registry[user])]
         );
         registry[user] = VerificationPlan.Null;
     }
@@ -112,7 +109,7 @@ contract UserLicenses is Initializable, OwnableUpgradeable, AccessControlUpgrade
     function editVerificationPlan(
         VerificationPlan plan,
         uint256 tokenAmountRequired
-    ) external onlyOwner {
+    ) external onlyRole(DEFAULT_ADMIN_ROLE){
         require(
             plan != VerificationPlan.Null,
             "Default plan is not available for edit"

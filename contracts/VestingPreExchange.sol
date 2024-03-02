@@ -4,13 +4,11 @@ pragma solidity 0.8.10;
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
  * @title VestingPreExchange
  */
 contract VestingPreExchange is Ownable, ReentrancyGuard {
-    using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
     IERC20 public token;
@@ -19,6 +17,7 @@ contract VestingPreExchange is Ownable, ReentrancyGuard {
     uint256 public preExchangeStartTime;
     uint256 public totalVestedAmount = 1200000000 * ELYS;
     uint256 public totalAvailableAmount = totalVestedAmount;
+    bool public initialized;
 
     uint256 public constant MONTH = 2592000;
     uint256 public constant YEAR = 31536000;
@@ -26,7 +25,7 @@ contract VestingPreExchange is Ownable, ReentrancyGuard {
 
     address public trustedWorker;
 
-    mapping(address => IndividualVesting) individualSchemes;
+    mapping(address => IndividualVesting) public individualSchemes;
 
     struct IndividualVesting {
         // uint256 startTime;
@@ -67,6 +66,8 @@ contract VestingPreExchange is Ownable, ReentrancyGuard {
      * @notice The pre-exchange start time must be in the future, otherwise the function will revert.
      */
     function init(uint256 preExchangeTime) external onlyOwner {
+        require(!initialized, "Initialization has already been done");
+        initialized = true;
         preExchangeStartTime = preExchangeTime;
         token.safeTransferFrom(msg.sender, address(this), totalVestedAmount);
         require(block.timestamp < preExchangeStartTime, "Invalid start time");
@@ -97,6 +98,7 @@ contract VestingPreExchange is Ownable, ReentrancyGuard {
      * @notice The total vested amount must equal the sum of all vested amounts at each cliff time, otherwise the function will revert.
      */
     function addUser(address user, uint256 vestedAmount) external onlyOwner {
+        require(block.timestamp < preExchangeStartTime, "Vesting has already started");
         require(
             totalAvailableAmount >= vestedAmount,
             "Insufficient remaming amount"
@@ -155,6 +157,7 @@ contract VestingPreExchange is Ownable, ReentrancyGuard {
         if (block.timestamp >= preExchangeStartTime) {
             claimTokens(user, individualSchemes[user].cliffs[0].amount);
         }
+        totalAvailableAmount -= vestedAmount;
     }
 
     /**
