@@ -39,8 +39,8 @@ async function signPermission(stakingAddress, user, schemeId, locationId, domain
   const selector = iface.getSighash('stakeTokens');
 
   const resultHash = ethers.utils.solidityKeccak256(
-    ["bytes4", "address", "address", "uint256", "bytes32", "string", "uint256"],
-    [selector, stakingAddress, user, schemeId, locationId, domainName, userNonce]
+    ["bytes4", "address", "address", "uint256", "bytes32", "string", "uint256", "uint256"],
+    [selector, stakingAddress, user, schemeId, locationId, domainName, 31337, userNonce]
   );
 
   const signature = await owner.signMessage(ethers.utils.arrayify(resultHash));

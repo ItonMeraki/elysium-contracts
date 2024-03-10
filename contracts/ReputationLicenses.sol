@@ -2,9 +2,7 @@
 pragma solidity 0.8.10;
 
 import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-import {SafeMathUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -26,9 +24,8 @@ interface IUserLicenses {
 /**
  * @title ReputationLicenses
  */
-contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, AccessControlUpgradeable {
+contract ReputationLicenses is Initializable, ReentrancyGuardUpgradeable, AccessControlUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
-    using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IERC20Upgradeable public token;
@@ -91,7 +88,6 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
      */
     function initialize(address token_, address verifier_) public initializer {
         __Context_init_unchained();
-        __Ownable_init_unchained();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         token = IERC20Upgradeable(token_);
         verifier = IUserLicenses(verifier_);
@@ -166,7 +162,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
      * Can only be called by the owner of the contract.
      * @param schemeId ID of the staking scheme to remove from the available schemes list.
      */
-    function removeAvailableScheme(uint256 schemeId) external onlyOwner {
+    function removeAvailableScheme(uint256 schemeId) external onlyRole(DEFAULT_ADMIN_ROLE) {
         availableSchemes[schemeId] = availableSchemes[
             availableSchemes.length - 1
         ];
@@ -192,7 +188,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
         uint256 duration,
         uint256 tokenAmount,
         uint256 apr
-    ) external onlyOwner {
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             availableSchemes[schemeId].duration != 0,
             "Only existing schemes"
@@ -246,6 +242,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
                 schemeId,
                 locationId,
                 domainName,
+                block.chainid,
                 _useNonce(msg.sender)
             )
         );
@@ -345,6 +342,11 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
             hasRole(MODERATOR_ROLE, msg.sender),
             "Caller is not a moderator"
         );
+           
+        uint256 payoutTotalNumber = stakeRegistry[stakeId].scheme.duration / PAYOUT_FREQUENCY;
+        require(stakeRegistry[stakeId].lastPayoutNumber < payoutTotalNumber, "Already paid out");
+        require(!stakeRegistry[stakeId].canceled, "Already canceled");
+
         stakeRegistry[stakeId].canceled = true;
         uint256 penaltyAmount = 0;
 
@@ -376,7 +378,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
      * Requirements:
      * - The caller must be the contract owner.
      */
-    function setTrustedSigner(address newTrustedSigner) external onlyOwner {
+    function setTrustedSigner(address newTrustedSigner) external onlyRole(DEFAULT_ADMIN_ROLE) {
         trustedSigner = newTrustedSigner;
     }
 
@@ -386,7 +388,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
      */
     function setPenaltyIncomeVault(
         address newPenaltyIncomeVault
-    ) external onlyOwner {
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         penaltyIncomeVault = newPenaltyIncomeVault;
     }
 
@@ -431,7 +433,7 @@ contract ReputationLicenses is Initializable, OwnableUpgradeable, ReentrancyGuar
      * Requirements:
      * - The caller must be the contract owner.
      */
-    function addStakingScheme(StakingScheme memory scheme) public onlyOwner {
+    function addStakingScheme(StakingScheme memory scheme) public onlyRole(DEFAULT_ADMIN_ROLE) {
         availableSchemes.push(scheme);
     }
     
