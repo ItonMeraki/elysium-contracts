@@ -54,8 +54,8 @@ contract ReputationLicenses is Initializable, ReentrancyGuardUpgradeable, Access
 
     enum LicenseType {
         Unlicensed,
-        Commercial,
-        Verification
+        Business,
+        Authenticity
     }
 
     struct StakingScheme {
@@ -93,7 +93,7 @@ contract ReputationLicenses is Initializable, ReentrancyGuardUpgradeable, Access
         verifier = IUserLicenses(verifier_);
         addStakingScheme(
             StakingScheme({
-                licenseType: LicenseType.Verification,
+                licenseType: LicenseType.Authenticity,
                 access: IUserLicenses.VerificationPlan.Special,
                 duration: 6 * MONTH,
                 tokenAmount: 7000 * ELYS,
@@ -102,7 +102,7 @@ contract ReputationLicenses is Initializable, ReentrancyGuardUpgradeable, Access
         );
         addStakingScheme(
             StakingScheme({
-                licenseType: LicenseType.Verification,
+                licenseType: LicenseType.Authenticity,
                 access: IUserLicenses.VerificationPlan.Ambassador,
                 duration: 6 * MONTH,
                 tokenAmount: 7000 * ELYS,
@@ -111,7 +111,7 @@ contract ReputationLicenses is Initializable, ReentrancyGuardUpgradeable, Access
         );
         addStakingScheme(
             StakingScheme({
-                licenseType: LicenseType.Verification,
+                licenseType: LicenseType.Authenticity,
                 access: IUserLicenses.VerificationPlan.Special,
                 duration: 12 * MONTH,
                 tokenAmount: 13000 * ELYS,
@@ -120,7 +120,7 @@ contract ReputationLicenses is Initializable, ReentrancyGuardUpgradeable, Access
         );
         addStakingScheme(
             StakingScheme({
-                licenseType: LicenseType.Verification,
+                licenseType: LicenseType.Authenticity,
                 access: IUserLicenses.VerificationPlan.Ambassador,
                 duration: 12 * MONTH,
                 tokenAmount: 13000 * ELYS,
@@ -129,7 +129,7 @@ contract ReputationLicenses is Initializable, ReentrancyGuardUpgradeable, Access
         );
         addStakingScheme(
             StakingScheme({
-                licenseType: LicenseType.Commercial,
+                licenseType: LicenseType.Business,
                 access: IUserLicenses.VerificationPlan.Ambassador,
                 duration: 6 * MONTH,
                 tokenAmount: 27000 * ELYS,
@@ -138,7 +138,7 @@ contract ReputationLicenses is Initializable, ReentrancyGuardUpgradeable, Access
         );
         addStakingScheme(
             StakingScheme({
-                licenseType: LicenseType.Commercial,
+                licenseType: LicenseType.Business,
                 access: IUserLicenses.VerificationPlan.Ambassador,
                 duration: 12 * MONTH,
                 tokenAmount: 27000 * ELYS,
@@ -147,7 +147,7 @@ contract ReputationLicenses is Initializable, ReentrancyGuardUpgradeable, Access
         );
         addStakingScheme(
             StakingScheme({
-                licenseType: LicenseType.Commercial,
+                licenseType: LicenseType.Business,
                 access: IUserLicenses.VerificationPlan.Ambassador,
                 duration: 36 * MONTH,
                 tokenAmount: 27000 * ELYS,
