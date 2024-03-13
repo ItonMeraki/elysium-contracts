@@ -194,7 +194,6 @@ contract VestingPreExchange is Ownable, ReentrancyGuard {
         );
 
         individualSchemes[receiver].availableAmount -= amount;
-        totalAvailableAmount -= amount;
         token.safeTransfer(receiver, amount);
 
         emit TokensClaimed(receiver, amount);
