@@ -296,6 +296,9 @@ contract ElysiumERC20 is IERC20, AccessControl {
     bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 
     address[] private _excluded;
+    
+    uint256 private _tTotalExcluded;
+    uint256 private _rTotalExcluded; 
 
     uint256 private constant MAX = ~uint256(0);
     uint256 private _tTotal = 9000000000 * 10 ** 18; //initial total supply
@@ -477,6 +480,7 @@ contract ElysiumERC20 is IERC20, AccessControl {
         if (_rOwned[account] > 0) {
             _tOwned[account] = tokenFromReflection(_rOwned[account]);
         }
+        _updateExcludedSupply(account, true);
         _isExcluded[account] = true;
         _excluded.push(account);
     }
@@ -492,6 +496,7 @@ contract ElysiumERC20 is IERC20, AccessControl {
                 break;
             }
         }
+        _updateExcludedSupply(account, false);
     }
 
     function _transferBothExcluded(
@@ -585,18 +590,23 @@ contract ElysiumERC20 is IERC20, AccessControl {
     }
 
     function _getCurrentSupply() private view returns (uint256, uint256) {
-        uint256 rSupply = _rTotal;
-        uint256 tSupply = _tTotal;
-        for (uint256 i = 0; i < _excluded.length; i++) {
-            if (
-                _rOwned[_excluded[i]] > rSupply ||
-                _tOwned[_excluded[i]] > tSupply
-            ) return (_rTotal, _tTotal);
-            rSupply = rSupply - _rOwned[_excluded[i]];
-            tSupply = tSupply - _tOwned[_excluded[i]];
-        }
-        if (rSupply < _rTotal / _tTotal) return (_rTotal, _tTotal);
+        uint256 rSupply = _rTotal - _rTotalExcluded;
+        uint256 tSupply = _tTotal - _tTotalExcluded;
         return (rSupply, tSupply);
+    }
+
+    function _updateExcludedSupply(address account, bool isExcluding) private {
+        if (isExcluding) {
+            if (_rOwned[account] > 0) {
+                _tTotalExcluded += tokenFromReflection(_rOwned[account]);
+                _rTotalExcluded += _rOwned[account];
+            }
+        } else {
+            if (_rOwned[account] > 0) {
+                _tTotalExcluded -= tokenFromReflection(_rOwned[account]);
+                _rTotalExcluded -= _rOwned[account];
+            }
+        }
     }
 
     function _takeDevFee(uint256 tDev) private {
